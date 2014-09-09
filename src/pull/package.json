@@ -1,4 +1,4 @@
 {
   "name" : "pull",
-  "main" : "./pull.js"
+  "main" : "./index.js"
 }
