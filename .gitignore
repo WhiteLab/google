@@ -2,5 +2,7 @@
 *.pyc
 *.log
 .venv
+
+tmp
 keys
 node_modules
