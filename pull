@@ -1,50 +1,83 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var util = require('util');
-var path = require('path');
-var async = require('async');
+var Spreadsheet = require('edit-google-spreadsheet');
 
-var pull = require('./src/pull');
+function usage() {
+  // Resolve name of script.
+  basename = require('path').basename(process.argv[1])
+
+  // Print usage message.
+  console.error("Usage:");
+  console.error(require('util').format('  %s [<option>]* [<arg>]*',basename));
+  console.error()
+  console.error('Options:');
+  console.error('  -h         : Print this help message.');
+  console.error('  -k <key>   : Use specified private key.');
+  console.error('  -u <user>  : Use specified username.');
+  console.error('  -o <dir>   : Base directory for output.');
+  console.error();
+  console.error('Positional arguments:');
+  console.error('  <ss> : Spreadsheet to pull.');
+  console.error('  <ws> : Worksheet to pull.');
+}
+
+function error(err) {
+  console.error(require('util').format('ERROR: %s',err));
+  process.exit(1);
+}
+
+function pull(ss,ws,uid,key,call) {
+  // Returns a given worksheet in JSON format.
+  // Requires:
+  //  ss    - Spreadsheet ID
+  //  ws    - Worksheet ID
+  //  uid   - User ID
+  //  key   - Private key filename
+  //  call  - Callback taking err,data,info
+
+  Spreadsheet.load({
+    debug: true,
+    spreadsheetName: ss,
+    worksheetName: ws,
+    oauth: {
+      email: uid,
+      keyFile: key,
+    }
+  },function (err,ws) {
+    if (err) { call(err); }
+    else { ws.receive({"getValues":true},call); }
+  });
+}
+module.exports.pull = pull;
 
 function main() {
   // Parse command line arguments.
-  pull.parse(function(err,uid,key,sheet,works,outdir) {
+  var args = require('minimist')(process.argv.slice(2));
 
-    if (err) { // If we get an error while parsing, bail out.
-      console.error(util.format('ERROR: %s',err));
-      process.exit(1);
-    }
+  // Check for help flag.
+  if (args.h) { usage(); call(1); }
 
-    // Create the spreadsheet directory.
-    var fullpath = path.join(outdir,sheet);
-    fs.exists(fullpath,function(exists) {
-      if (! exists) { fs.mkdirSync(fullpath); }
+  // Check for key file.
+  if ( typeof args.k !== 'string' ) { error('private key file must be specified'); }
 
-      // For each worksheet...
-      async.each(works,function(work,call) {
+  // Check for username.
+  if ( typeof args.u !== 'string' ) { error('username must be specified'); }
 
-        // Do the following in series...
-        async.waterfall([
+  // Check that the spreadsheet has been specified.
+  if (args._.length < 1) { error('spreadsheet name must be specified'); }
 
-          // Pull specified worksheet from specified spreadsheet.
-          function(call) {
-            pull.pull(sheet,work,uid,key,call);
-          },
+  // Check that one or more worksheets are specified.
+  if (args._.length < 2) { error('worksheet name must be specified'); }
 
-          // Write worksheet to <sheet>/<work> as JSON.
-          function(data,info,call) {
-            var filepath = path.join(fullpath,info.worksheetTitle);
-            pull.save(filepath,data,call);
-          }
+  var uid = args.u;
+  var key = args.k;
+  var ssid = args._[0];
+  var wsid = args._[1];
 
-        ], call);
-
-      },function(err) {
-        if (err) { console.error(util.format('ERROR: %s',err)); }
-      });
-    });
-
+  // Pull the specified worksheet from specified spreadsheet.
+  pull(ssid,wsid,uid,key,function(err,data,info) {
+    if (err) { error(err); }
+    else { console.log(JSON.stringify(data)); }
   });
 }
 

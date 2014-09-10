@@ -1,14 +1,9 @@
 {
   "name": "pull",
   "dependencies": {
-    "async": {
-      "version": "0.9.0",
-      "from": "async@",
-      "resolved": "https://registry.npmjs.org/async/-/async-0.9.0.tgz"
-    },
     "edit-google-spreadsheet": {
       "version": "0.2.10",
-      "from": "edit-google-spreadsheet@",
+      "from": "edit-google-spreadsheet@0.2.10",
       "resolved": "https://registry.npmjs.org/edit-google-spreadsheet/-/edit-google-spreadsheet-0.2.10.tgz",
       "dependencies": {
         "colors": {
@@ -21,11 +16,13 @@
         },
         "lodash": {
           "version": "1.2.1",
-          "from": "lodash@~1.2.1"
+          "from": "lodash@~1.2.1",
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-1.2.1.tgz"
         },
         "request": {
           "version": "2.21.0",
           "from": "request@~2.21.0",
+          "resolved": "https://registry.npmjs.org/request/-/request-2.21.0.tgz",
           "dependencies": {
             "qs": {
               "version": "0.6.6",
@@ -116,7 +113,8 @@
             },
             "mime": {
               "version": "1.2.11",
-              "from": "mime@~1.2.9"
+              "from": "mime@~1.2.9",
+              "resolved": "https://registry.npmjs.org/mime/-/mime-1.2.11.tgz"
             },
             "form-data": {
               "version": "0.0.8",
@@ -171,7 +169,7 @@
     },
     "minimist": {
       "version": "1.1.0",
-      "from": "minimist@",
+      "from": "minimist@1.1.0",
       "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.1.0.tgz"
     }
   }
