@@ -27,7 +27,7 @@ function error(err) {
 }
 
 function pull(ss,ws,uid,key,call) {
-  // Returns a given worksheet in JSON format.
+  // Returns values of a given worksheet.
   // Requires:
   //  ss    - Spreadsheet ID
   //  ws    - Worksheet ID
