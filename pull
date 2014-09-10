@@ -36,7 +36,6 @@ function pull(ss,ws,uid,key,call) {
   //  call  - Callback taking err,data,info
 
   Spreadsheet.load({
-    debug: true,
     spreadsheetName: ss,
     worksheetName: ws,
     oauth: {
