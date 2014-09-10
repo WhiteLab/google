@@ -19,7 +19,7 @@ function pull(ss,ws,uid,key,call) {
     }
   },function (err,ws) {
     if (err) { call(err); }
-    else { ws.receive(call); }
+    else { ws.receive({"getValues":true},call); }
   });
 }
 module.exports.pull = pull;
