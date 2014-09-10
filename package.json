@@ -1,5 +1,6 @@
 {
-  "name" : "pull",
+  "name" : "metadata",
+  "main" : "./index",
   "repository": {
     "type": "git",
     "url": "git://github.com:whitelab/metadata.git"
