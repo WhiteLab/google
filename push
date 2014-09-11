@@ -55,16 +55,6 @@ def main(args):
 
   return
 
-
-  table = r.db('test').table('test')
-
-  r.connect('igsbimg.uchicago.edu',auth_key='3ed4a3df-0d28-4969-9de4-b5d522671bf0').repl()
-  try: print r.db('test').table('test').index_create('omg/wtf', lambda x: x['omg']['wtf']).run()
-  except Exception as err: print err
-  print r.db('test').table('test').index_list().run()
-
-  print table.index_status().run()
-
 if __name__ == '__main__':
   # Generate base logfile name.
   root = __file__.rsplit(os.sep,1)[0]
