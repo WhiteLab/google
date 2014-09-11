@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import time
+import json
+import logging
+import argparse
+import datetime
+
+import rethinkdb as r
+
+def main(args):
+  # Set up logging.
+  logging.basicConfig(level=args.loglevel,
+                      format='%(asctime)s %(name)-6s %(levelname)-4s %(message)s')
+
+  # Load the configuration file.
+  config = json.loads(open(args.config).read())
+
+  # Load the database key file.
+  key = open(args.key).read().strip()
+
+  # Open connection to database.
+  r.connect('igsbimg.uchicago.edu',auth_key=key).repl()
+
+  # Make sure databse exists.
+  try: r.db_create(config['database']).run()
+  except r.RqlRuntimeError as err: logging.info('database exists')
+  else: logging.info('database created')
+
+  # Make sure the table exists.
+  try: r.db(config['database']).table_create(config['table']).run()
+  except r.RqlRuntimeError as err: logging.info('table exists')
+  else: logging.info('table created')
+
+  # Parse and upsert documents.
+  data = json.loads(args.data.read())
+  head = data[str(config['header'])]
+  daeh = dict(map(lambda x: (x[1],x[0]),head.items()))
+  if len(head.keys()) != len(daeh.keys()):
+    raise ValueError('non-unique entries in header row')
+
+  for row in data:
+    if int(row) < config['start']: continue
+    document = dict(daeh)
+    for key in head:
+      try: document[head[key]] = data[row][key]
+      except KeyError: document[head[key]] = None
+    try: document['id'] = '_'.join(map(lambda x: document[x],config['key']))
+    except Exception:
+      logging.error('failed to parse ID of row %s' % row)
+      continue
+    r.db(config['database']).table(config['table']).insert(document,conflict="replace").run()
+
+  return
+
+
+  table = r.db('test').table('test')
+
+  r.connect('igsbimg.uchicago.edu',auth_key='3ed4a3df-0d28-4969-9de4-b5d522671bf0').repl()
+  try: print r.db('test').table('test').index_create('omg/wtf', lambda x: x['omg']['wtf']).run()
+  except Exception as err: print err
+  print r.db('test').table('test').index_list().run()
+
+  print table.index_status().run()
+
+if __name__ == '__main__':
+  # Generate base logfile name.
+  root = __file__.rsplit(os.sep,1)[0]
+  name = __file__.rsplit(os.sep,1)[-1].rsplit('.',1)[0]
+  date = datetime.datetime.now().strftime('%Y%m%d')
+  logf = '%s.%s.log' % (name,date)
+
+  # Parse command line arguments.
+  parser = argparse.ArgumentParser(description='Push Worksheet To Database')
+
+  parser.add_argument('-c','--config',required=True,
+                      help='Spreadsheet configuration file.')
+  parser.add_argument('-k','--key',required=True,
+                      help='Database authentication key.')
+
+  parser.add_argument('--debug',dest='loglevel',action='store_const',
+                      const=logging.DEBUG,default=logging.INFO,
+                      help='Set logging to debug.')
+
+  parser.add_argument('data',nargs='?',type=argparse.FileType('r'),
+                      default=sys.stdin,help='JSON formatted worksheet data.')
+
+  try: main(parser.parse_args())
+  except Exception as err:
+    logging.critical('Unhandled exception.')
+    logging.critical(err)
+    raise
