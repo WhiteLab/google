@@ -1,0 +1,13 @@
+{
+  "spreadsheet" : "PANCAN Project",
+  "spreadsheetid" : "twoqLyO79B9doAsN1b-QsNw",
+  "worksheet" : "Library Generation Tracker",
+  "worksheetid" : "od6",
+  "header" : 4,
+  "start" : 5,
+  "database" : "HGAC",
+  "table" : "PANCAN_PROJECT_LIBRARY_GENERATION_TRACKER",
+  "key" : [
+    "bid"
+  ]
+}
